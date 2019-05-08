@@ -1,5 +1,5 @@
 //
-// \file simple_hashing.h
+// \file cuckoo_hashing.cpp
 // \author Oleksandr Tkachenko
 // \email tkachenko@encrypto.cs.tu-darmstadt.de
 // \organization Cryptography and Privacy Engineering Group (ENCRYPTO)

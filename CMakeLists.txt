@@ -3,7 +3,7 @@ cmake_policy(SET CMP0088 NEW)
 project(HashingTables)
 
 set(CMAKE_CXX_STANDARD 17)
-
+set(HASHING_TABLES_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 # DEPENDENCIES
 
@@ -35,7 +35,7 @@ target_include_directories(HashingTables PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR})
 
 option(HASHING_TABLES_BUILD_TESTS OFF)
-option(HASHING_TABLES_BUILD_EXE OFF)
+set(HASHING_TABLES_BUILD_EXAMPLES ON)
 
 
 # TESTS
@@ -56,6 +56,6 @@ endif (HASHING_TABLES_BUILD_TESTS)
 
 # EXAMPLES
 
-if (HASHING_TABLES_BUILD_EXE)
-    add_subdirectory(src/examples)
-endif (HASHING_TABLES_BUILD_EXE)
+if (HASHING_TABLES_BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif (HASHING_TABLES_BUILD_EXAMPLES)
