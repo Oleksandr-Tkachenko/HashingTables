@@ -66,6 +66,23 @@ bool SimpleTable::Print() const {
   return true;
 }
 
+void SimpleTable::SetMaximumBinSize(std::size_t size) {
+  maximum_bin_size_ = size;
+  pad_to_maximum_bin_size = true;
+}
+
+std::vector<uint64_t> SimpleTable::AsRowVector() const {
+  std::vector<uint64_t> raw_table(maximum_bin_size_ * num_bins_, DUMMY_ELEMENT);
+
+  for (auto i = 0ull; i < num_bins_; ++i) {
+    for (auto j = 0ull; j < hash_table_.at(i).size(); ++j) {
+      raw_table.at(i * maximum_bin_size_ + j) = hash_table_.at(i).at(j).GetElement();
+    }
+  }
+
+  return std::move(raw_table);
+}
+
 SimpleTable::SimpleTable(double epsilon, std::size_t num_of_bins, std::size_t seed) {
   epsilon_ = epsilon;
   num_bins_ = num_of_bins;
@@ -95,6 +112,7 @@ bool SimpleTable::AllocateTable() {
 }
 
 bool SimpleTable::MapElementsToTable() {
+
   for (auto element_id = 0ull; element_id < elements_.size(); ++element_id) {
     HashTableEntry current_entry(elements_.at(element_id), element_id, num_of_hash_functions_,
                                  num_bins_);
@@ -111,6 +129,7 @@ bool SimpleTable::MapElementsToTable() {
       }
     }
   }
+
   return true;
 }
 }  // namespace ENCRYPTO

@@ -41,6 +41,8 @@ class HashingTable {
 
   virtual bool Print() const = 0;
 
+  virtual std::vector<uint64_t> AsRowVector() const = 0;
+
   bool MapElements();
 
  protected:

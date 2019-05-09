@@ -56,6 +56,8 @@ class CuckooTable : public HashingTable {
 
   auto GetStashSize() const { return stash_.size(); }
 
+  std::vector<uint64_t> AsRowVector() const final;
+
  private:
   std::vector<HashTableEntry> hash_table_, stash_;
   std::size_t recursion_limiter_ = 200;

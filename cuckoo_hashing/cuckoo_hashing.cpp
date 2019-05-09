@@ -85,6 +85,17 @@ bool CuckooTable::Print() const {
   return true;
 }
 
+std::vector<uint64_t> CuckooTable::AsRowVector() const {
+  std::vector<uint64_t> raw_table;
+  raw_table.reserve(num_bins_);
+
+  for (auto i = 0ull; i < num_bins_; ++i) {
+    raw_table.push_back(hash_table_.at(i).GetElement());
+  }
+
+  return std::move(raw_table);
+}
+
 CuckooTable::CuckooTable(double epsilon, std::size_t num_of_bins, std::size_t seed) {
   epsilon_ = epsilon;
   num_bins_ = num_of_bins;
