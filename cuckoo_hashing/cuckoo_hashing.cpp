@@ -21,3 +21,122 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 // OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+
+#include "cuckoo_hashing.h"
+
+#include <fmt/format.h>
+
+#include "common/hash_table_entry.h"
+
+namespace ENCRYPTO {
+
+void swap(HashTableEntry& a, HashTableEntry& b) noexcept {
+  std::swap(a.value_, b.value_);
+  std::swap(a.global_id_, b.global_id_);
+  std::swap(a.possible_addresses_, b.possible_addresses_);
+  std::swap(a.current_function_id_, b.current_function_id_);
+  std::swap(a.num_of_bins_, b.num_of_bins_);
+  std::swap(a.num_of_hash_functions_, b.num_of_hash_functions_);
+}
+
+bool CuckooTable::Insert(std::uint64_t element) {
+  elements_.push_back(element);
+  return true;
+}
+
+bool CuckooTable::Insert(const std::vector<std::uint64_t>& elements) {
+  elements_.insert(this->elements_.end(), elements.begin(), elements.end());
+  return true;
+};
+
+void CuckooTable::SetRecursiveInsertionLimiter(std::size_t limiter) {
+  recursion_limiter_ = limiter;
+}
+
+bool CuckooTable::Print() const {
+  if (!mapped_) {
+    std::cout << "Cuckoo hashing. The table is empty. "
+                 "You must map elements to the table using MapElementsToTable() "
+                 "before you print it.\n";
+    return false;
+  }
+  std::cout << "Cuckoo hashing - table content "
+               "(the format is \"[bin#] initial_element# element_value\"):\n";
+  for (auto i = 0ull; i < hash_table_.size(); ++i) {
+    const auto& entry = hash_table_.at(i);
+    std::string id = entry.IsEmpty() ? "" : std::to_string(entry.GetGlobalID());
+    std::string value = entry.IsEmpty() ? "" : std::to_string(entry.GetElement());
+    std::cout << fmt::format("[{}] {} {} ", i, id, value);
+  }
+
+  if (stash_.size() == 0) {
+    std::cout << ", no stash";
+  } else {
+    std::cout << fmt::format(" stash has {} elements: ", stash_.size());
+    for (auto i = 0ull; i < stash_.size(); ++i) {
+      std::string delimiter = i == 0 ? "" : ", ";
+      std::cout << fmt::format("{}{} {}", delimiter, stash_.at(i).GetGlobalID(),
+                               stash_.at(i).GetElement());
+    }
+  }
+
+  std::cout << std::endl;
+
+  return true;
+}
+
+CuckooTable::CuckooTable(double epsilon, std::size_t num_of_bins, std::size_t seed) {
+  epsilon_ = epsilon;
+  num_bins_ = num_of_bins;
+  seed_ = seed;
+  generator_.seed(seed_);
+
+  AllocateLUTs();
+  GenerateLUTs();
+}
+
+bool CuckooTable::AllocateTable() {
+  if (num_bins_ == 0 && epsilon_ == 0.0f) {
+    throw(
+        std::runtime_error("You must set to a non-zero value "
+                           "either the number of bins or epsilon "
+                           "in the cuckoo hash table"));
+  } else if (epsilon_ < 0) {
+    throw(std::runtime_error("Epsilon cannot be negative in the cuckoo hash table"));
+  }
+
+  if (epsilon_ > 0) {
+    num_bins_ = static_cast<uint64_t>(std::ceil(elements_.size() * epsilon_));
+  }
+  assert(num_bins_ > 0);
+  hash_table_.resize(num_bins_);
+  return true;
+}
+
+bool CuckooTable::MapElementsToTable() {
+  for (auto element_id = 0ull; element_id < elements_.size(); ++element_id) {
+    HashTableEntry current_entry(elements_.at(element_id), element_id, num_of_hash_functions_,
+                                 num_bins_);
+
+    // find the new element's mappings and put them to the corresponding std::vector
+    auto addresses = HashToPosition(elements_.at(element_id));
+    current_entry.SetPossibleAddresses(std::move(addresses));
+    current_entry.SetCurrentAddress(0);
+
+    std::swap(current_entry, hash_table_.at(current_entry.GetCurrentAddress()));
+
+    for (auto recursion_step = 0ull; !current_entry.IsEmpty(); ++recursion_step) {
+      if (recursion_step > recursion_limiter_) {
+        stash_.push_back(current_entry);
+        break;
+      } else {
+        ++statistics_.recursive_remappings_counter_;
+        current_entry.IterateFunctionNumber();
+        current_entry.GetCurrentAddress();
+        std::swap(current_entry, hash_table_.at(current_entry.GetCurrentAddress()));
+      }
+    }
+  }
+  return true;
+}
+}

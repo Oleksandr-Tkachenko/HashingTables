@@ -1,7 +1,5 @@
-#pragma once
-
 //
-// \file cuckoo_hashing.h
+// \file hashing.cpp
 // \author Oleksandr Tkachenko
 // \email tkachenko@encrypto.cs.tu-darmstadt.de
 // \organization Cryptography and Privacy Engineering Group (ENCRYPTO)
@@ -24,50 +22,51 @@
 // OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include "common/hashing.h"
+#include "hashing.h"
 
 namespace ENCRYPTO {
 
-class HashTableEntry;
+bool HashingTable::MapElements() {
+  AllocateTable();
+  MapElementsToTable();
+  mapped_ = true;
+  return true;
+}
 
-class CuckooTable : public HashingTable {
- public:
-  CuckooTable() = delete;
+bool HashingTable::AllocateLUTs() {
+  luts_.resize(num_of_hash_functions_);
+  for (auto& luts : luts_) {
+    luts.resize(num_of_luts_);
+    for (auto& entry : luts) {
+      entry.resize(num_of_tables_in_lut_);
+    }
+  }
+  return true;
+}
 
-  CuckooTable(double epsilon) : CuckooTable(epsilon, 0, 0){};
+bool HashingTable::GenerateLUTs() {
+  for (auto i = 0ull; i < num_of_hash_functions_; ++i) {
+    for (auto j = 0ull; j < num_of_luts_; ++j) {
+      for (auto k = 0ull; k < num_of_tables_in_lut_; k++) {
+        luts_.at(i).at(j).at(k) = generator_();
+      }
+    }
+  }
 
-  CuckooTable(double epsilon, std::size_t seed) : CuckooTable(epsilon, 0, seed){};
+  return true;
+}
 
-  CuckooTable(std::size_t num_of_bins) : CuckooTable(0.0f, num_of_bins, 0){};
-
-  CuckooTable(std::size_t num_of_bins, std::size_t seed) : CuckooTable(0.0f, num_of_bins, seed){};
-
-  ~CuckooTable() final{};
-
-  bool Insert(std::uint64_t element) final;
-
-  bool Insert(const std::vector<std::uint64_t>& elements) final;
-
-  void SetRecursiveInsertionLimiter(std::size_t limiter);
-
-  bool Print() const final;
-
-  auto GetStatistics() const { return statistics_; }
-
-  auto GetStashSize() const { return stash_.size(); }
-
- private:
-  std::vector<HashTableEntry> hash_table_, stash_;
-  std::size_t recursion_limiter_ = 200;
-
-  struct Statistics {
-    std::size_t recursive_remappings_counter_ = 0;
-  } statistics_;
-
-  CuckooTable(double epsilon, std::size_t num_of_bins, std::size_t seed);
-
-  bool AllocateTable() final;
-
-  bool MapElementsToTable() final;
-};
+std::vector<std::uint64_t> HashingTable::HashToPosition(uint64_t element) const {
+  std::vector<std::uint64_t> addresses;
+  for (auto func_i = 0ull; func_i < num_of_hash_functions_; ++func_i) {
+    std::uint64_t address = element;
+    for (auto lut_i = 0ull; lut_i < num_of_luts_; ++lut_i) {
+      std::size_t lut_id = ((address >> (lut_i * elem_byte_length_ / num_of_luts_)) & 0x000000FFu);
+      lut_id %= num_of_tables_in_lut_;
+      address ^= luts_.at(func_i).at(lut_i).at(lut_id);
+    }
+    addresses.push_back(address);
+  }
+  return std::move(addresses);
+}
 }

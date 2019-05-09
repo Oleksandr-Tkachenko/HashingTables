@@ -1,9 +1,18 @@
-cmake_minimum_required(VERSION 3.14)
-cmake_policy(SET CMP0088 NEW)
+cmake_minimum_required(VERSION 3.13)
+cmake_policy(SET CMP0080 NEW)
 project(HashingTables)
 
 set(CMAKE_CXX_STANDARD 17)
 set(HASHING_TABLES_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+
+if (${CMAKE_BUILD_TYPE} STREQUAL Release)
+    message("Release mode")
+
+endif ()
+
+set(CMAKE_CXX_FLAGS "-Wall -Wextra")
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 
 # DEPENDENCIES
 
@@ -27,12 +36,19 @@ endif ()
 # LIBRARY
 
 add_library(HashingTables STATIC
+        common/hash_table_entry.cpp
+        common/hashing.cpp
         cuckoo_hashing/cuckoo_hashing.cpp
         simple_hashing/simple_hashing.cpp
         )
 
 target_include_directories(HashingTables PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR})
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/extern/fmt/include)
+
+target_link_libraries(HashingTables PUBLIC
+        fmt::fmt-header-only
+        )
 
 option(HASHING_TABLES_BUILD_TESTS OFF)
 set(HASHING_TABLES_BUILD_EXAMPLES ON)

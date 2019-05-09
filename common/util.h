@@ -1,7 +1,5 @@
 #pragma once
 
-#include <random>
-
 //
 // \file util.h
 // \author Oleksandr Tkachenko

@@ -23,3 +23,46 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
 // OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+
+#include "common/hashing.h"
+
+namespace ENCRYPTO {
+
+  class HashTableEntry;
+
+  class SimpleTable : public HashingTable {
+  public:
+    SimpleTable() = delete;
+
+    SimpleTable(double epsilon) : SimpleTable(epsilon, 0, 0){};
+
+    SimpleTable(double epsilon, std::size_t seed) : SimpleTable(epsilon, 0, seed){};
+
+    SimpleTable(std::size_t num_of_bins) : SimpleTable(0.0f, num_of_bins, 0){};
+
+    SimpleTable(std::size_t num_of_bins, std::size_t seed) : SimpleTable(0.0f, num_of_bins, seed){};
+
+    ~SimpleTable() final{};
+
+    bool Insert(std::uint64_t element) final;
+
+    bool Insert(const std::vector<std::uint64_t>& elements) final;
+
+    bool Print() const final;
+
+    auto GetStatistics() const { return statistics_; }
+
+  private:
+    std::vector<std::vector<HashTableEntry>> hash_table_;
+
+    struct Statistics {
+      std::size_t max_observed_bin_size_ = 0; ///< the maximum number of elements in a single bin
+    } statistics_;
+
+    SimpleTable(double epsilon, std::size_t num_of_bins, std::size_t seed);
+
+    bool AllocateTable() final;
+
+    bool MapElementsToTable() final;
+  };
+}
