@@ -32,4 +32,14 @@ HashTableEntry::HashTableEntry(std::uint64_t value, std::size_t global_id,
   num_of_hash_functions_ = num_of_functions;
   num_of_bins_ = num_of_bins;
 }
+
+HashTableEntry::HashTableEntry(const HashTableEntry& other) {
+  num_of_hash_functions_ = other.num_of_hash_functions_;
+  num_of_bins_ = other.num_of_bins_;
+  global_id_ = other.global_id_;
+
+  value_ = other.value_;
+  current_function_id_ = other.current_function_id_;
+  possible_addresses_ = other.possible_addresses_;
+}
 }
