@@ -61,12 +61,14 @@ bool CuckooTable::Print() const {
     return false;
   }
   std::cout << "Cuckoo hashing - table content "
-               "(the format is \"[bin#] initial_element# element_value\"):\n";
+               "(the format is \"[bin#] initial_element# element_value (function#)\"):\n";
   for (auto i = 0ull; i < hash_table_.size(); ++i) {
     const auto& entry = hash_table_.at(i);
     std::string id = entry.IsEmpty() ? "" : std::to_string(entry.GetGlobalID());
     std::string value = entry.IsEmpty() ? "" : std::to_string(entry.GetElement());
-    std::cout << fmt::format("[{}] {} {} ", i, id, value);
+    std::string f = entry.IsEmpty() ? "" : std::to_string(entry.GetCurrentFunctinId());
+    f = std::string("(" + f + ")");
+    std::cout << fmt::format("[{}] {} {} {}", i, id, value, f);
   }
 
   if (stash_.size() == 0) {
@@ -85,15 +87,26 @@ bool CuckooTable::Print() const {
   return true;
 }
 
-std::vector<uint64_t> CuckooTable::AsRowVector() const {
+std::vector<uint64_t> CuckooTable::AsRawVector() const {
   std::vector<uint64_t> raw_table;
   raw_table.reserve(num_bins_);
 
   for (auto i = 0ull; i < num_bins_; ++i) {
-    raw_table.push_back(hash_table_.at(i).GetElement());
+    raw_table.push_back(hash_table_.at(i).GetElement() ^
+                        static_cast<uint64_t>(hash_table_.at(i).GetCurrentFunctinId()));
   }
 
   return std::move(raw_table);
+}
+
+std::vector<std::size_t> CuckooTable::GetNumOfElementsInBins() const {
+  std::vector<uint64_t> num_elements_in_bins(hash_table_.size(), 0);
+  for (auto i = 0ull; i < hash_table_.size(); ++i) {
+    if (!hash_table_.at(i).IsEmpty()) {
+      ++num_elements_in_bins.at(i);
+    }
+  }
+  return std::move(num_elements_in_bins);
 }
 
 CuckooTable::CuckooTable(double epsilon, std::size_t num_of_bins, std::size_t seed) {
@@ -101,9 +114,6 @@ CuckooTable::CuckooTable(double epsilon, std::size_t num_of_bins, std::size_t se
   num_bins_ = num_of_bins;
   seed_ = seed;
   generator_.seed(seed_);
-
-  AllocateLUTs();
-  GenerateLUTs();
 }
 
 bool CuckooTable::AllocateTable() {
@@ -112,11 +122,11 @@ bool CuckooTable::AllocateTable() {
         std::runtime_error("You must set to a non-zero value "
                            "either the number of bins or epsilon "
                            "in the cuckoo hash table"));
-  } else if (epsilon_ < 0) {
+  } else if (epsilon_ < 0.0f) {
     throw(std::runtime_error("Epsilon cannot be negative in the cuckoo hash table"));
   }
 
-  if (epsilon_ > 0) {
+  if (epsilon_ > 0.0f) {
     num_bins_ = static_cast<uint64_t>(std::ceil(elements_.size() * epsilon_));
   }
   assert(num_bins_ > 0);
@@ -125,6 +135,11 @@ bool CuckooTable::AllocateTable() {
 }
 
 bool CuckooTable::MapElementsToTable() {
+  assert(!mapped_);
+
+  AllocateLUTs();
+  GenerateLUTs();
+
   for (auto element_id = 0ull; element_id < elements_.size(); ++element_id) {
     HashTableEntry current_entry(elements_.at(element_id), element_id, num_of_hash_functions_,
                                  num_bins_);
@@ -148,6 +163,9 @@ bool CuckooTable::MapElementsToTable() {
       }
     }
   }
+
+  mapped_ = true;
+
   return true;
 }
 }

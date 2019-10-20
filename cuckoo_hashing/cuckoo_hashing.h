@@ -56,7 +56,9 @@ class CuckooTable : public HashingTable {
 
   auto GetStashSize() const { return stash_.size(); }
 
-  std::vector<uint64_t> AsRowVector() const final;
+  std::vector<uint64_t> AsRawVector() const final;
+
+  std::vector<std::size_t> GetNumOfElementsInBins() const final;
 
  private:
   std::vector<HashTableEntry> hash_table_, stash_;

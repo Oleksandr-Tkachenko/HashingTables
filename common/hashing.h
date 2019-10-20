@@ -41,9 +41,15 @@ class HashingTable {
 
   virtual bool Print() const = 0;
 
-  virtual std::vector<uint64_t> AsRowVector() const = 0;
+  virtual std::vector<uint64_t> AsRawVector() const = 0;
+
+  virtual std::vector<std::size_t> GetNumOfElementsInBins() const = 0;
+
+  void SetNumOfHashFunctions(std::size_t n) { num_of_hash_functions_ = n; }
 
   bool MapElements();
+
+  static std::uint64_t RealElementToHash(std::uint64_t element);
 
  protected:
   HashingTable() = default;
