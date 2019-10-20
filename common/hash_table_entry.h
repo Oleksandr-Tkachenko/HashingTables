@@ -33,8 +33,10 @@ constexpr auto DUMMY_ELEMENT = std::numeric_limits<std::size_t>::max();
 class HashTableEntry {
  public:
   HashTableEntry() { global_id_ = value_ = DUMMY_ELEMENT; }
+
   HashTableEntry(std::uint64_t value, std::size_t global_id, std::size_t num_of_functions,
                  std::size_t num_of_bins);
+  HashTableEntry(const HashTableEntry& other);
 
   void SetCurrentAddress(std::size_t function_id) { current_function_id_ = function_id; }
 
@@ -46,19 +48,17 @@ class HashTableEntry {
     return possible_addresses_.at(function_id) % num_of_bins_;
   }
 
-  std::size_t GetCurrentFunctinId()  const { return current_function_id_; }
+  std::size_t GetCurrentFunctinId() const { return current_function_id_; }
 
-  std::size_t GetCurrentAddress()  const {
+  std::size_t GetCurrentAddress() const {
     return possible_addresses_.at(current_function_id_) % num_of_bins_;
   }
 
-  const std::vector<std::size_t> GetPossibleAddresses() const {
-    return possible_addresses_;
-  };
+  const std::vector<std::size_t> GetPossibleAddresses() const { return possible_addresses_; };
 
-  bool IsEmpty() const  { return value_ == DUMMY_ELEMENT; }
+  bool IsEmpty() const { return value_ == DUMMY_ELEMENT; }
 
-  std::size_t GetGlobalID()  const { return global_id_; }
+  std::size_t GetGlobalID() const { return global_id_; }
 
   std::uint64_t GetElement() const { return value_; }
 

@@ -24,6 +24,8 @@
 
 #include "hashing.h"
 
+#include <openssl/sha.h>
+
 namespace ENCRYPTO {
 
 bool HashingTable::MapElements() {
@@ -68,5 +70,19 @@ std::vector<std::uint64_t> HashingTable::HashToPosition(uint64_t element) const 
     addresses.push_back(address);
   }
   return std::move(addresses);
+}
+
+std::uint64_t HashingTable::RealElementToHash(std::uint64_t element) {
+  SHA_CTX ctx;
+  unsigned char hash[SHA_DIGEST_LENGTH];
+
+  SHA1_Init(&ctx);
+  SHA1_Update(&ctx, reinterpret_cast<unsigned char*>(&element), sizeof(element));
+  SHA1_Final(hash, &ctx);
+
+  uint64_t result = 0;
+  std::copy(hash, hash + sizeof(result), reinterpret_cast<unsigned char*>(&result));
+
+  return result;
 }
 }

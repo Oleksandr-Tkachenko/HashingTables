@@ -16,6 +16,8 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 
 # DEPENDENCIES
 
+find_package(OpenSSL REQUIRED)
+
 find_package(fmt QUIET)
 if (fmt_FOUND)
     message(STATUS "Found fmt")
@@ -48,10 +50,12 @@ target_include_directories(HashingTables PUBLIC
 
 target_link_libraries(HashingTables PUBLIC
         fmt::fmt-header-only
+        OpenSSL::SSL
+        OpenSSL::Crypto
         )
 
 option(HASHING_TABLES_BUILD_TESTS OFF)
-set(HASHING_TABLES_BUILD_EXAMPLES ON)
+option(HASHING_TABLES_BUILD_EXAMPLES OFF)
 
 
 # TESTS
