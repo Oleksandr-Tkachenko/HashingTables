@@ -11,11 +11,8 @@ if (${CMAKE_BUILD_TYPE} STREQUAL Release)
 endif ()
 
 set(CMAKE_CXX_FLAGS "-Wall -Wextra")
-set(CMAKE_CXX_FLAGS_DEBUG "-g")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 
 # DEPENDENCIES
-
 find_package(OpenSSL REQUIRED)
 
 find_package(fmt QUIET)
@@ -30,7 +27,7 @@ elseif (NOT fmt_FOUND AND NOT TARGET fmt::fmt)
                 WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
     endif ()
     set(BUILD_SHARED_LIBS ON)
-    set(FMT_TEST OFF)
+    set(FMT_TEST OFF CACHE BOOL "Disable tests for the fmt library" FORCE)
     add_subdirectory(extern/fmt EXCLUDE_FROM_ALL)
 endif ()
 
@@ -44,12 +41,13 @@ add_library(HashingTables STATIC
         simple_hashing/simple_hashing.cpp
         )
 
+target_compile_definitions(HashingTables PRIVATE FMT_HEADER_ONLY)
+
 target_include_directories(HashingTables PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/extern/fmt/include)
 
-target_link_libraries(HashingTables PUBLIC
-        fmt::fmt-header-only
+target_link_libraries(HashingTables PRIVATE
         OpenSSL::SSL
         OpenSSL::Crypto
         )

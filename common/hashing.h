@@ -49,7 +49,7 @@ class HashingTable {
 
   bool MapElements();
 
-  static std::uint64_t RealElementToHash(std::uint64_t element);
+  static std::uint64_t ElementToHash(std::uint64_t element);
 
  protected:
   HashingTable() = default;

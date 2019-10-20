@@ -69,10 +69,10 @@ std::vector<std::uint64_t> HashingTable::HashToPosition(uint64_t element) const 
     }
     addresses.push_back(address);
   }
-  return std::move(addresses);
+  return addresses;
 }
 
-std::uint64_t HashingTable::RealElementToHash(std::uint64_t element) {
+std::uint64_t HashingTable::ElementToHash(std::uint64_t element) {
   SHA_CTX ctx;
   unsigned char hash[SHA_DIGEST_LENGTH];
 

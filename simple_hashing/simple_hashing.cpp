@@ -38,7 +38,7 @@ bool SimpleTable::Insert(std::uint64_t element) {
 bool SimpleTable::Insert(const std::vector<std::uint64_t>& elements) {
   elements_.insert(this->elements_.end(), elements.begin(), elements.end());
   return true;
-};
+}
 
 bool SimpleTable::Print() const {
   if (!mapped_) {
@@ -84,7 +84,7 @@ std::vector<uint64_t> SimpleTable::AsRawVector() const {
     }
   }
 
-  return std::move(raw_table);
+  return raw_table;
 }
 
 std::vector<std::vector<uint64_t>> SimpleTable::AsRaw2DVector() const {
@@ -98,7 +98,7 @@ std::vector<std::vector<uint64_t>> SimpleTable::AsRaw2DVector() const {
     }
   }
 
-  return std::move(raw_table);
+  return raw_table;
 }
 
 std::vector<std::size_t> SimpleTable::GetNumOfElementsInBins() const {
@@ -106,7 +106,7 @@ std::vector<std::size_t> SimpleTable::GetNumOfElementsInBins() const {
   for (auto i = 0ull; i < hash_table_.size(); ++i) {
     num_elements_in_bins.at(i) = hash_table_.at(i).size();
   }
-  return std::move(num_elements_in_bins);
+  return num_elements_in_bins;
 }
 
 std::vector<uint64_t> SimpleTable::AsRawVectorPadded() const {
@@ -118,7 +118,7 @@ std::vector<uint64_t> SimpleTable::AsRawVectorPadded() const {
     }
   }
 
-  return std::move(raw_table);
+  return raw_table;
 }
 
 SimpleTable::SimpleTable(double epsilon, std::size_t num_of_bins, std::size_t seed) {

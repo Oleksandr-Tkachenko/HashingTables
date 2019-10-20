@@ -96,7 +96,7 @@ std::vector<uint64_t> CuckooTable::AsRawVector() const {
                         static_cast<uint64_t>(hash_table_.at(i).GetCurrentFunctinId()));
   }
 
-  return std::move(raw_table);
+  return raw_table;
 }
 
 std::vector<std::size_t> CuckooTable::GetNumOfElementsInBins() const {
@@ -106,7 +106,7 @@ std::vector<std::size_t> CuckooTable::GetNumOfElementsInBins() const {
       ++num_elements_in_bins.at(i);
     }
   }
-  return std::move(num_elements_in_bins);
+  return num_elements_in_bins;
 }
 
 CuckooTable::CuckooTable(double epsilon, std::size_t num_of_bins, std::size_t seed) {
