@@ -99,6 +99,29 @@ std::vector<uint64_t> CuckooTable::AsRawVector() const {
   return raw_table;
 }
 
+std::vector<uint64_t> CuckooTable::AsRawVectorOfIds() const {
+  std::vector<uint64_t> id_table;
+  id_table.reserve(num_bins_);
+
+  for (auto i = 0ull; i < num_bins_; ++i) {
+    id_table.push_back(hash_table_.at(i).GetGlobalID());
+  }
+
+  return id_table;
+}
+
+std::vector<bool> CuckooTable::AsRawVectorOfOccupancy() const {
+  // Shows whether the entry is not empty
+  std::vector<bool> occ_table;
+  occ_table.reserve(num_bins_);
+
+  for (auto i = 0ull; i < num_bins_; ++i) {
+    occ_table.push_back(!hash_table_.at(i).IsEmpty());
+  }
+
+  return occ_table;
+}
+
 std::vector<std::size_t> CuckooTable::GetNumOfElementsInBins() const {
   std::vector<uint64_t> num_elements_in_bins(hash_table_.size(), 0);
   for (auto i = 0ull; i < hash_table_.size(); ++i) {

@@ -101,6 +101,19 @@ std::vector<std::vector<uint64_t>> SimpleTable::AsRaw2DVector() const {
   return raw_table;
 }
 
+std::vector<std::vector<uint64_t>> SimpleTable::AsRaw2DVectorOfIds() const {
+  std::vector<std::vector<uint64_t>> id_table(num_bins_);
+
+  for (auto i = 0ull; i < num_bins_; ++i) {
+    for (auto j = 0ull; j < hash_table_.at(i).size(); ++j) {
+      id_table.at(i).push_back(hash_table_.at(i).at(j).GetGlobalID());
+    }
+  }
+
+  return id_table;
+}
+
+
 std::vector<std::size_t> SimpleTable::GetNumOfElementsInBins() const {
   std::vector<uint64_t> num_elements_in_bins(hash_table_.size(), 0);
   for (auto i = 0ull; i < hash_table_.size(); ++i) {
