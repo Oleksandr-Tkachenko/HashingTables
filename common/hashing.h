@@ -41,7 +41,7 @@ class HashingTable {
 
   virtual bool Print() const = 0;
 
-  virtual std::vector<uint64_t> AsRawVector() const = 0;
+  virtual std::vector<uint64_t> ObtainEntryValues() const = 0;
 
   virtual std::vector<std::size_t> GetNumOfElementsInBins() const = 0;
 

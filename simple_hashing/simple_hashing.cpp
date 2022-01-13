@@ -73,7 +73,7 @@ void SimpleTable::SetMaximumBinSize(std::size_t size) {
   pad_to_maximum_bin_size = true;
 }
 
-std::vector<uint64_t> SimpleTable::AsRawVector() const {
+std::vector<uint64_t> SimpleTable::ObtainEntryValues() const {
   std::vector<uint64_t> raw_table;
   raw_table.reserve(elements_.size());
 
@@ -87,7 +87,7 @@ std::vector<uint64_t> SimpleTable::AsRawVector() const {
   return raw_table;
 }
 
-std::vector<std::vector<uint64_t>> SimpleTable::AsRaw2DVector() const {
+std::vector<std::vector<uint64_t>> SimpleTable::ObtainBinEntryValues() const {
   std::vector<std::vector<uint64_t>> raw_table(num_bins_);
 
   for (auto i = 0ull; i < num_bins_; ++i) {
@@ -101,7 +101,7 @@ std::vector<std::vector<uint64_t>> SimpleTable::AsRaw2DVector() const {
   return raw_table;
 }
 
-std::vector<std::vector<uint64_t>> SimpleTable::AsRaw2DVectorOfIds() const {
+std::vector<std::vector<uint64_t>> SimpleTable::ObtainBinEntryIds() const {
   std::vector<std::vector<uint64_t>> id_table(num_bins_);
 
   for (auto i = 0ull; i < num_bins_; ++i) {
@@ -122,7 +122,7 @@ std::vector<std::size_t> SimpleTable::GetNumOfElementsInBins() const {
   return num_elements_in_bins;
 }
 
-std::vector<uint64_t> SimpleTable::AsRawVectorPadded() const {
+std::vector<uint64_t> SimpleTable::ObtainEntryValuesPadded() const {
   std::vector<uint64_t> raw_table(maximum_bin_size_ * num_bins_, DUMMY_ELEMENT);
 
   for (auto i = 0ull; i < num_bins_; ++i) {
