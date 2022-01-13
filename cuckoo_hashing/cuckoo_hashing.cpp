@@ -87,7 +87,7 @@ bool CuckooTable::Print() const {
   return true;
 }
 
-std::vector<uint64_t> CuckooTable::AsRawVector() const {
+std::vector<uint64_t> CuckooTable::ObtainEntryValues() const {
   std::vector<uint64_t> raw_table;
   raw_table.reserve(num_bins_);
 
@@ -99,7 +99,7 @@ std::vector<uint64_t> CuckooTable::AsRawVector() const {
   return raw_table;
 }
 
-std::vector<uint64_t> CuckooTable::AsRawVectorOfIds() const {
+std::vector<uint64_t> CuckooTable::ObtainEntryIds() const {
   std::vector<uint64_t> id_table;
   id_table.reserve(num_bins_);
 
@@ -110,7 +110,7 @@ std::vector<uint64_t> CuckooTable::AsRawVectorOfIds() const {
   return id_table;
 }
 
-std::vector<bool> CuckooTable::AsRawVectorOfOccupancy() const {
+std::vector<bool> CuckooTable::ObtainBinOccupancy() const {
   // Shows whether the entry is not empty
   std::vector<bool> occ_table;
   occ_table.reserve(num_bins_);
